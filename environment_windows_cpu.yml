@@ -1,0 +1,17 @@
+name: cartoongan
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6.8
+  - pip
+  - numpy
+  - opencv
+  - pillow
+  - tqdm
+  - scikit-image
+  - pip:
+    - tensorflow==1.15.0
+    - torch==1.4.0
+    - torchvision==0.
