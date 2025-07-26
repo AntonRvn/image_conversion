@@ -1,5 +1,7 @@
 from app.cartoongan.cartoongan import CartoonGAN
 import os
+from app.celery_app import celery
+from app import app
 
 # Путь к весам модели (замените на ваш)
 MODEL_PATH = os.path.join(
@@ -8,14 +10,9 @@ MODEL_PATH = os.path.join(
 )
 
 # Глобальный объект модели (загружается 1 раз)
-cartoongan = None
+cartoongan = CartoonGAN(MODEL_PATH)
 
-@app.on_after_configure.connect
-def setup_model(**kwargs):
-    global cartoongan
-    cartoongan = CartoonGAN(MODEL_PATH)
-
-@app.task(bind=True)
+@celery.task(bind=True)
 def process_image(self, image_id):
     with app.app_context():
         from app.models import Image, db

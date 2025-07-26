@@ -1,0 +1,12 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
+WTForms
+Werkzeug
+psycopg2-binary
+celery
+redis
+tensorflow
+Pillow 
