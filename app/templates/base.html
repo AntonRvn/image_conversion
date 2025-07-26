@@ -1,9 +1,110 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Cartoonify</title>
-</head>
-<body>
-    {% block content %}{% endblock %}
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Your Gallery</h2>
+    
+    <!-- Кнопка загрузки нового изображения -->
+    <div class="mb-4">
+        <a href="{{ url_for('upload') }}" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Upload New Image
+        </a>
+    </div>
+
+    {% if not images %}
+        <div class="alert alert-info">
+            You haven't uploaded any images yet. <a href="{{ url_for('upload') }}">Upload your first image!</a>
+        </div>
+    {% else %}
+        <!-- Галерея в виде карточек -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for img in images %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <!-- Оригинальное изображение -->
+                    <img src="{{ url_for('static', filename=img.original_url) }}" 
+                         class="card-img-top" 
+                         alt="Original image"
+                         style="object-fit: cover; height: 200px;">
+                    
+                    <div class="card-body">
+                        <!-- Обработанное изображение или кнопка обработки -->
+                        {% if img.cartoon_url %}
+                            <img src="{{ url_for('static', filename=img.cartoon_url) }}" 
+                                 class="img-fluid mb-3 border rounded"
+                                 alt="Cartoon version">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {{ img.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                                <a href="{{ url_for('static', filename=img.cartoon_url) }}" 
+                                   download="cartoon_{{ img.filename }}"
+                                   class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <p class="text-muted mb-3">Image not processed yet</p>
+                                <a href="{{ url_for('process', image_id=img.id) }}" 
+                                   class="btn btn-warning btn-sm">
+                                    <i class="bi bi-magic"></i> Cartoonify!
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Модальное окно для предпросмотра -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="downloadLink" href="#" class="btn btn-primary" download>Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрипт для модального окна -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация модального окна
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    
+    // Обработчик кликов по изображениям
+    document.querySelectorAll('.card-img-top, .img-fluid').forEach(img => {
+        img.addEventListener('click', function() {
+            document.getElementById('modalImage').src = this.src;
+            document.getElementById('downloadLink').href = this.src;
+            document.getElementById('downloadLink').setAttribute(
+                'download', 
+                'cartoon_' + this.src.split('/').pop()
+            );
+            modal.show();
+        });
+    });
+});
+</script>
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card-img-top {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

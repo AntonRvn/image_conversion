@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% extends "base.html" %}
+
+{% block content %}
+<h2>Your Gallery</h2>
+<div class="images">
+    {% for img in images %}
+    <div class="image">
+        <img src="{{ url_for('static', filename=img.original_url) }}" width="200">
+        {% if img.cartoon_url %}
+        <img src="{{ url_for('static', filename=img.cartoon_url) }}" width="200">
+        {% else %}
+        <a href="{{ url_for('process', image_id=img.id) }}">Process</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}</title>
+</head>
+<body>
+
+</body>
+</html>
